@@ -100,6 +100,10 @@ class _FilemapBase(object):
             raise Error("cannot synchronize image file '%s': %s "
                         % (self._image_path, err.strerror))
 
+        if not BmapHelpers.is_compatible_file_system(self._image_path):
+            raise Error("image file on incompatible file system '%s': '%s': see docs for fix"
+                % (self._image_path, BmapHelpers.get_file_system_type(self._image_path)))
+
         _log.debug("opened image \"%s\"" % self._image_path)
         _log.debug("block size %d, blocks count %d, image size %d"
                    % (self.block_size, self.blocks_cnt, self.image_size))
