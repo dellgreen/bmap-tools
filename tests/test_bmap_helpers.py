@@ -109,3 +109,11 @@ class TestBmapHelpers(unittest.TestCase):
                                          delete=True, dir=".", suffix=".img") as f:
 
             self.assertTrue(BmapHelpers.is_compatible_file_system(f.name))
+
+
+    def test_get_mount_point(self):
+         with tempfile.NamedTemporaryFile("w+", prefix="testfile_",
+                                         delete=True, dir=".", suffix=".img") as f:
+            f = BmapHelpers.get_mount_point(f.name)
+            self.assertIsNotNone(f)
+            self.assertTrue(f.strip())

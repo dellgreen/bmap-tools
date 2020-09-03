@@ -98,6 +98,17 @@ def program_is_available(name):
     return False
 
 
+def get_mount_point(filepath):
+    """
+    Return the mount point the file object file resides on.
+    """
+    f = os.path.realpath(filepath)
+    while f != os.path.sep:
+        if os.path.ismount(f): return f
+        f = os.path.realpath(os.path.join(f, os.pardir))
+    return f
+
+
 def get_file_system_type(filepath):
     """
     Return the file system type the file object file resides on.
