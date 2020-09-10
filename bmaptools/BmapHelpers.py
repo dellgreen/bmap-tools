@@ -116,15 +116,19 @@ def get_file_system_type(filepath):
 
     # normalize,resolve and get absolute path to the file object
     f = os.path.realpath(filepath)
-    cmd = "df -T '%s' | awk 'NR==2 {print $2}'" % f
-    proc = subprocess.Popen(cmd, stdout=PIPE, stderr=PIPE, shell=True, universal_newlines=True)
+    proc = subprocess.Popen(['df', '-T', '--', f], stdout=PIPE, stderr=PIPE)
     stdout, stderr = proc.communicate()
+    ftype = None
     if stdout:
-        stdout = stdout.strip()
+        t = stdout.splitlines()
+        if len(t) >= 2: 
+            t = t[1].split(None, 2)
+            if len(t) >= 2: 
+                ftype = t[1].lower()
 
-    if not stdout:  # shouldnt happen
+    if not ftype:
         raise UnexpectedStateError("no file system type was found: %s" % stderr)
-    return stdout.lower()
+    return ftype
 
 
 def get_zfs_compat_param_path():
