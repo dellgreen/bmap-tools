@@ -46,7 +46,7 @@ class TestBmapHelpers(unittest.TestCase):
     def test_get_file_system_type_nofstypefound(self):
         d = os.path.dirname(__file__)
         f = os.path.join(d, 'BmapHelpers/file/does/not/exist')
-        with self.assertRaises(BmapHelpers.UnexpectedStateError):
+        with self.assertRaises(BmapHelpers.Error):
             BmapHelpers.get_file_system_type(f)
 
     def test_get_file_system_type_symlink(self):
@@ -61,7 +61,7 @@ class TestBmapHelpers(unittest.TestCase):
     @patch.object(BmapHelpers, 'get_zfs_compat_param_path')
     def test_is_zfs_compatible_enabled(self, mock_zfs_param_path):
         with tempfile.NamedTemporaryFile("w+", prefix="testfile_",
-                                         delete=True, dir=".", suffix=".img") as f:
+                                         delete=True, dir=".", suffix=".txt") as f:
             f.write("1")
             f.flush()
             mock_zfs_param_path.return_value = f.name
@@ -70,11 +70,19 @@ class TestBmapHelpers(unittest.TestCase):
     @patch.object(BmapHelpers, 'get_zfs_compat_param_path')
     def test_is_zfs_compatible_disabled(self, mock_zfs_param_path):
         with tempfile.NamedTemporaryFile("w+", prefix="testfile_",
-                                         delete=True, dir=".", suffix=".img") as f:
+                                         delete=True, dir=".", suffix=".txt") as f:
             f.write("0")
             f.flush()
             mock_zfs_param_path.return_value = f.name
             self.assertFalse(BmapHelpers.is_zfs_compatible())
+
+    @patch.object(BmapHelpers, 'get_zfs_compat_param_path')
+    def test_is_zfs_compatible_InvalidReadValue(self, mock_zfs_param_path):
+        with tempfile.NamedTemporaryFile("a", prefix="testfile_",
+                                         delete=True, dir=".", suffix=".txt") as f:
+            mock_zfs_param_path.return_value = f.name
+            with self.assertRaises(BmapHelpers.Error):
+                BmapHelpers.is_zfs_compatible()
 
     @patch.object(BmapHelpers, 'get_zfs_compat_param_path')
     def test_is_zfs_compatible_notinstalled(self, mock_zfs_param_path):
