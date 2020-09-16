@@ -143,16 +143,14 @@ def is_zfs_compatible():
     """
 
     fp = get_zfs_compat_param_path()
-    if os.path.isfile(fp):
-        try:
-            with open(fp, 'r') as f:
-                return 1 == int(f.readline())
-        except IOError as err:
-            raise Error("cannot open zfs param path '%s': %s" % (fp, err))
-        except ValueError as err:
-            raise Error("invalid value read from param path '%s': %s" % (fp, err))
-
-    return False
+    if not os.path.isfile(fp): return False
+    try:
+        with open(fp, 'r') as f:
+            return 1 == int(f.readline())
+    except IOError as err:
+        raise Error("cannot open zfs param path '%s': %s" % (fp, err))
+    except ValueError as err:
+        raise Error("invalid value read from param path '%s': %s" % (fp, err))
 
 
 def is_compatible_file_system(filepath):
