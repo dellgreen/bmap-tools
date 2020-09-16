@@ -19,12 +19,13 @@ This test verifies 'BmapHelpers' module functionality.
 """
 
 import os
+import sys
 import tempfile
 
 
 from bmaptools import BmapHelpers
 from backports import tempfile as btempfile
-from mock import patch, MagicMock
+from mock import patch, MagicMock, mock_open
 
 
 # This is a work-around for Centos 6
@@ -83,6 +84,12 @@ class TestBmapHelpers(unittest.TestCase):
             mock_zfs_param_path.return_value = f.name
             with self.assertRaises(BmapHelpers.Error):
                 BmapHelpers.is_zfs_compatible()
+
+    @patch("builtins.open" if sys.version_info[0] >= 3 else '__builtin__.open', new_callable=mock_open)
+    def test_is_zfs_compatible_UnreadableFile(self, mock_open): 
+            mock_open.side_effect = IOError
+            #with self.assertRaises(BmapHelpers.Error):
+            BmapHelpers.is_zfs_compatible()
 
     @patch.object(BmapHelpers, 'get_zfs_compat_param_path')
     def test_is_zfs_compatible_notinstalled(self, mock_zfs_param_path):
